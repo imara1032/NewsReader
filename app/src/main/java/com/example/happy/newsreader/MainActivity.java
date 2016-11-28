@@ -2,6 +2,7 @@ package com.example.happy.newsreader;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -17,10 +18,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.appdatasearch.GetRecentContextCall;
@@ -29,47 +32,103 @@ import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.appindexing.Thing;
 import com.google.android.gms.common.api.GoogleApiClient;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.w3c.dom.ls.LSException;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private List<newsItem> availNews = new ArrayList<>();
-    /**
-     * ATTENTION: This was auto-generated to implement the App Indexing API.
-     * See https://g.co/AppIndexing/AndroidStudio for more information.
-     */
-    private GoogleApiClient client;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Button button= (Button) findViewById(R.id.load_news);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                RequestQueue queue= Volley.newRequestQueue(MainActivity.this);
-                StringRequest myRequest= new StringRequest(Request.Method.GET, "https://www.google.com/",
-                        new Response.Listener<String>(){
-                            @Override
-                            public void onResponse(String response) {
-                                Log.i("my Tag", "response"+response);
-                            }
-                        },new Response.ErrorListener(){
+
+        //callNewsAPI();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        callNewsAPI();
+    }
+
+    private class customeAdapter extends ArrayAdapter<newsItem>{
+       public customeAdapter() {
+           super(MainActivity.this, R.layout.my_layout, availNews);
+       }
+
+       @NonNull
+       @Override
+       public View getView(int position, View convertView, ViewGroup parent) {
+           if(convertView==null){
+               convertView=getLayoutInflater().inflate(R.layout.my_layout,parent,false);
+           }
+           newsItem mycurrentItem= availNews.get(position);
+          // Log.i("position",Integer.toString(position));
+           ImageView myImage= (ImageView) convertView.findViewById(R.id.left_icon);
+           TextView myHeading=(TextView) convertView.findViewById(R.id.heading);
+           TextView myDescription=(TextView) convertView.findViewById(R.id.description);
+
+          // Log.d("myTag",mycurrentItem.getTittle() );
+          //myImage.setImageResource(mycurrentItem.getImageId());
+           myHeading.setText(mycurrentItem.getTittle());
+           myDescription.setText(mycurrentItem.getNewsDesc());
+           return convertView;
+       }
+   }
+
+    public void callNewsAPI(){
+        RequestQueue queue =Volley.newRequestQueue(this);
+
+        JsonObjectRequest myRequest= new JsonObjectRequest(Request.Method.GET,
+                " https://newsapi.org/v1/articles?source=bbc-news&sortBy=top&apiKey=bae90d1de3214384a02840158d277714",
+                null,
+                new Response.Listener<JSONObject>(){
                     @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.i("my Tag", "error"+error);
+                    public void onResponse(JSONObject response) {
+
+                        try{
+                            JSONArray newsItems = response.getJSONArray("articles");
+                            try {
+
+                                for (int i = 0; i < newsItems.length(); i++) {
+                                    JSONObject temp = newsItems.getJSONObject(i);
+                                    String tittle= temp.getString("title");
+                                    String description= temp.getString("description");
+                                    String url= temp.getString("url");
+                                    String author=temp.getString("author");
+                                    availNews.add(new newsItem(tittle, description, url, author));
+                                    Log.d("myTag", description);
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        } catch(JSONException e){
+                            e.printStackTrace();
+                        }//try end
                     }
-                }
-                );
-                queue.add(myRequest);
+                }, new Response.ErrorListener(){
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
             }
         });
 
+        /*
+        myRequest.setRetryPolicy(new DefaultRetryPolicy(
+            10000,DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT //extend the timeout period
+        ));
+        */
+        queue.add(myRequest);
 
-        int imageId=0;
-        availNews.add(new newsItem("newsDesc", "newsDescSmall","de", imageId, "author", "title", "url", "time"));
-
+        //wait for 2 secs
+        SystemClock.sleep(2000);
 
         ArrayAdapter<newsItem> adapter = new customeAdapter();
 
@@ -87,30 +146,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-   private class customeAdapter extends ArrayAdapter<newsItem>{
-       public customeAdapter() {
-           super(MainActivity.this, R.layout.my_layout, availNews);
-       }
-
-       @NonNull
-       @Override
-       public View getView(int position, View convertView, ViewGroup parent) {
-           if(convertView==null){
-               convertView=getLayoutInflater().inflate(R.layout.my_layout,parent,false);
-           }
-           newsItem mycurrentItem= availNews.get(position);
-
-           ImageView myImage= (ImageView) convertView.findViewById(R.id.left_icon);
-           TextView myHeading=(TextView) convertView.findViewById(R.id.heading);
-           TextView myDescription=(TextView) convertView.findViewById(R.id.description);
-
-           myImage.setImageResource(mycurrentItem.getImageId());
-           myHeading.setText(mycurrentItem.getTitle());
-           myDescription.setText(String.valueOf(mycurrentItem.getNewsDesc()));
-           return convertView;
-       }
-   }
-
 }
 
 

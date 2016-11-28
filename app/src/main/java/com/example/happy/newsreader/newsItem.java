@@ -5,56 +5,56 @@ package com.example.happy.newsreader;
  */
 
 public class newsItem {
-    private String newsHeading;
+    private String tittle;
     private String newsDesc;
-    private String newsDescSmall;
+    private String url;
     private int imageId;
     private String author;
-    private String title;
 
-    public String getNewsHeading() {
-        return newsHeading;
+    public newsItem(String tittle, String newsDesc, String url,  String author) {
+        this.tittle = tittle;
+        this.newsDesc = newsDesc;
+        this.url = url;
+        this.author = author;
+    }
+
+    public String getTittle() {
+        return tittle;
+    }
+
+    public void setTittle(String tittle) {
+        this.tittle = tittle;
     }
 
     public String getNewsDesc() {
         return newsDesc;
     }
 
-    public String getNewsDescSmall() {
-        return newsDescSmall;
-    }
-
-    public int getImageId() {
-        return imageId;
-    }
-
-    public String getAuthor() {
-        return author;
-    }
-
-    public String getTitle() {
-        return title;
+    public void setNewsDesc(String newsDesc) {
+        this.newsDesc = newsDesc;
     }
 
     public String getUrl() {
         return url;
     }
 
-    public String getTime() {
-        return time;
+    public void setUrl(String url) {
+        this.url = url;
     }
 
-    private String url;
-    private String time;
+    public int getImageId() {
+        return imageId;
+    }
 
-    public newsItem(String newsHeading, String newsDesc, String newsDescSmall, int imageId, String author, String title, String url, String time) {
-        this.newsHeading = newsHeading;
-        this.newsDesc = newsDesc;
-        this.newsDescSmall = newsDescSmall;
+    public void setImageId(int imageId) {
         this.imageId = imageId;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
         this.author = author;
-        this.title = title;
-        this.url = url;
-        this.time = time;
     }
 }
