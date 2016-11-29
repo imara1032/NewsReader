@@ -8,13 +8,13 @@ public class newsItem {
     private String tittle;
     private String newsDesc;
     private String url;
-    private int imageId;
+    private String urlImage;
     private String author;
 
     public newsItem(String tittle, String newsDesc, String url,  String author) {
         this.tittle = tittle;
         this.newsDesc = newsDesc;
-        this.url = url;
+        this.urlImage = url;
         this.author = author;
     }
 
@@ -42,12 +42,12 @@ public class newsItem {
         this.url = url;
     }
 
-    public int getImageId() {
-        return imageId;
+    public String getImageId() {
+        return urlImage;
     }
 
-    public void setImageId(int imageId) {
-        this.imageId = imageId;
+    public void setImageId(String imageId) {
+        this.urlImage = imageId;
     }
 
     public String getAuthor() {
