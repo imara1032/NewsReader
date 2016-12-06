@@ -20,10 +20,10 @@ public class news_db {
         this._author = _author;
     }
 
-    public int get_id() {
+    /*public int get_id() {
         return _id;
     }
-
+*/
     public void set_id(int _id) {
         this._id = _id;
     }
